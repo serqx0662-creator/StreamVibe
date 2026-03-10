@@ -1,8 +1,14 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return (
-   <>
-       
-   </>
-  );
+export default async function RootPage() {
+    const session = await auth();
+
+    if (!session) {
+        redirect("/login");
+    } else {
+        redirect("/register");
+    }
+
+    return null;
 }

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Search, Bell } from "lucide-react";
 import Logo from "..//../public/img/icons/Logo.png"
 
-export default function MovieHeader() {
+export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {
