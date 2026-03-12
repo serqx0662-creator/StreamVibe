@@ -24,21 +24,21 @@ export default function Header() {
 
     return (
         <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 py-4 lg:px-12 flex items-center justify-between ${
+            className={` fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 py-4 lg:px-12 flex items-center justify-between ${
                 isScrolled ? "bg-black/95 shadow-lg" : "bg-transparent"
             }`}
         >
             <div className="flex items-center gap-2">
                 <div className="relative w-[200px] h-[50px]">
-                    <Image src={Logo} alt="StreamVibe" fill className="object-contain" />
+                    <Image src={Logo} alt="StreamVibe" fill  className="object-contain" />
                 </div>
             </div>
 
-            <nav className="hidden md:flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl p-1 px-2">
-                <NavLink href="#" label="Home" active/>
-                <NavLink href="#" label="Movies & Shows" />
-                <NavLink href="#" label="Support" />
-                <NavLink href="#" label="Subscriptions" />
+            <nav className="hidden md:flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl p-2 px-2">
+                <NavLink href="/Home" label="Home" active/>
+                <NavLink href="/Movies" label="Movies & Shows" />
+                <NavLink href="/" label="Support" />
+                <NavLink href="/" label="Subscriptions" />
             </nav>
 
 

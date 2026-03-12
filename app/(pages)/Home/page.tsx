@@ -15,10 +15,8 @@ export default function Page() {
             <Header />
 
             <main className="flex flex-col gap-10 md:gap-20">
-                {/* Главный баннер с сеткой фильмов */}
                 <HeroSection />
 
-                {/* Обертка для контента с боковыми отступами */}
                 <div className="container mx-auto px-4 md:px-10 lg:px-16 space-y-24 md:space-y-32">
                     <CategorySection />
 

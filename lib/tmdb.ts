@@ -1,36 +1,11 @@
-// lib/tmdb.ts
+const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+const BASE_URL = "https://api.themoviedb.org/3";
 
-// Временные данные, пока API ключ не заработает
-const mockCategories = [
-    {
-        id: 1,
-        name: "Action",
-        images: ["/img/bg-image/movies.png", "/img/bg-image/movies2.png", "/img/bg-image/movies3.png", "/img/bg-image/movies4.png"]
-    },
-    {
-        id: 2,
-        name: "Adventure",
-        images: ["/img/bg-image/movies2.png", "/img/bg-image/movies3.png", "/img/bg-image/movies4.png", "/img/bg-image/movies.png"]
-    },
-    {
-        id: 3,
-        name: "Comedy",
-        images: ["/img/bg-image/movies3.png", "/img/bg-image/movies4.png", "/img/bg-image/movies.png", "/img/bg-image/movies2.png"]
-    },
-    {
-        id: 4,
-        name: "Drama",
-        images: ["/img/bg-image/movies4.png", "/img/bg-image/movies.png", "/img/bg-image/movies2.png", "/img/bg-image/movies3.png"]
-    },
-    {
-        id: 5,
-        name: "Horror",
-        images: ["/img/bg-image/movies.png", "/img/bg-image/movies2.png", "/img/bg-image/movies3.png", "/img/bg-image/movies4.png"]
-    }
-];
-
-export async function getMovieCategories() {
-    // Имитируем задержку сети
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return mockCategories;
-}
+export const getMoviesByCategory = async (genreId: number) => {
+    const res = await fetch(
+        `${BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=${genreId}&language=en-US`
+    );
+    const data = await res.json();
+    // Возвращаем только 4 первых постера для сетки 2x2
+    return data.results.slice(0, 4).map((m: any) => `https://image.tmdb.org/t/p/w500${m.poster_path}`);
+};
