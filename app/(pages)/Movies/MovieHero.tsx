@@ -5,6 +5,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { Play, Plus, ThumbsUp, Volume2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from "@/app/components/ui/button";
 import { Skeleton } from "@/app/components/ui/skeleton";
+import Link from 'next/link';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -59,45 +60,47 @@ export default function MovieHero() {
             >
                 {movies.map((movie) => (
                     <SwiperSlide key={movie.id}>
-                        <div className="relative w-full h-[500px] md:h-[700px] lg:h-[800px] flex items-end justify-center pb-10 md:pb-16">
-                            {/* Фоновое изображение */}
-                            <div
-                                className="absolute inset-0 bg-cover bg-center"
-                                style={{
-                                    backgroundImage: `url('https://image.tmdb.org/t/p/original${movie.backdrop_path}')`,
-                                }}
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/40 to-transparent" />
-                            </div>
+                        <Link href={`/Movies/${movie.id}`}>
+                            <div className="relative w-full h-[500px] md:h-[700px] lg:h-[800px] flex items-end justify-center pb-10 md:pb-16">
+                                {/* Фоновое изображение */}
+                                <div
+                                    className="absolute inset-0 bg-cover bg-center"
+                                    style={{
+                                        backgroundImage: `url('https://image.tmdb.org/t/p/original${movie.backdrop_path}')`,
+                                    }}
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/40 to-transparent" />
+                                </div>
 
-                            {/* Контент */}
-                            <div className="relative z-10 w-full max-w-[1000px] px-4 text-center">
-                                <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-                                    {movie.title}
-                                </h1>
-                                <p className="text-[#999999] text-xs md:text-sm lg:text-base mb-8 line-clamp-2 md:line-clamp-3 max-w-[850px] mx-auto">
-                                    {movie.overview}
-                                </p>
+                                {/* Контент */}
+                                <div className="relative z-10 w-full max-w-[1000px] px-4 text-center">
+                                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+                                        {movie.title}
+                                    </h1>
+                                    <p className="text-[#999999] text-xs md:text-sm lg:text-base mb-8 line-clamp-2 md:line-clamp-3 max-w-[850px] mx-auto">
+                                        {movie.overview}
+                                    </p>
 
-                                {/* Кнопки */}
-                                <div className="flex flex-wrap justify-center items-center gap-3 mb-10 md:mb-16">
-                                    <Button className="bg-[#E50000] hover:bg-[#FF1A1A] text-white px-6 md:px-8 py-5 md:py-7 rounded-lg font-semibold flex gap-2">
-                                        <Play fill="white" size={20} /> Play Now
-                                    </Button>
-                                    <div className="flex gap-2">
-                                        <Button size="icon" className="w-12 h-12 md:w-14 md:h-14 bg-[#0F0F0F] border border-[#262626] rounded-lg text-white hover:bg-[#1A1A1A]">
-                                            <Plus size={24} />
+                                    {/* Кнопки */}
+                                    <div className="flex flex-wrap justify-center items-center gap-3 mb-10 md:mb-16">
+                                        <Button className="bg-[#E50000] hover:bg-[#FF1A1A] text-white px-6 md:px-8 py-5 md:py-7 rounded-lg font-semibold flex gap-2">
+                                            <Play fill="white" size={20} /> Play Now
                                         </Button>
-                                        <Button size="icon" className="w-12 h-12 md:w-14 md:h-14 bg-[#0F0F0F] border border-[#262626] rounded-lg text-white hover:bg-[#1A1A1A]">
-                                            <ThumbsUp size={24} />
-                                        </Button>
-                                        <Button size="icon" className="w-12 h-12 md:w-14 md:h-14 bg-[#0F0F0F] border border-[#262626] rounded-lg text-white hover:bg-[#1A1A1A]">
-                                            <Volume2 size={24} />
-                                        </Button>
+                                        <div className="flex gap-2">
+                                            <Button size="icon" className="w-12 h-12 md:w-14 md:h-14 bg-[#0F0F0F] border border-[#262626] rounded-lg text-white hover:bg-[#1A1A1A]">
+                                                <Plus size={24} />
+                                            </Button>
+                                            <Button size="icon" className="w-12 h-12 md:w-14 md:h-14 bg-[#0F0F0F] border border-[#262626] rounded-lg text-white hover:bg-[#1A1A1A]">
+                                                <ThumbsUp size={24} />
+                                            </Button>
+                                            <Button size="icon" className="w-12 h-12 md:w-14 md:h-14 bg-[#0F0F0F] border border-[#262626] rounded-lg text-white hover:bg-[#1A1A1A]">
+                                                <Volume2 size={24} />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     </SwiperSlide>
                 ))}
 
