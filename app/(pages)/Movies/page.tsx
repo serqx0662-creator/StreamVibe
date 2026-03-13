@@ -19,7 +19,6 @@ export default function Page() {
 
                 <div className="container mx-auto px-4 md:px-10 lg:px-16 space-y-20 md:space-y-32">
 
-                    {/* --- СЕКЦИЯ MOVIES --- */}
                     <SectionWrapper label="Movies">
                         <div className="space-y-20">
                             <OurGenresSection />
@@ -30,7 +29,6 @@ export default function Page() {
                         </div>
                     </SectionWrapper>
 
-                    {/* --- СЕКЦИЯ SHOWS --- */}
                     <SectionWrapper label="Shows">
                         <div className="space-y-20">
                             <OurGenresSection />

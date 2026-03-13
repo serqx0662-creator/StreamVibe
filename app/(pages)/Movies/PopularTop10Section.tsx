@@ -20,7 +20,7 @@ export default function PopularTop10Section() {
         const fetchMovies = async () => {
             try {
                 const res = await fetch(
-                    `https://api.themoviedb.org/3/movie/popular?language=ru-RU&page=1`,
+                    `https://api.themoviedb.org/3/movie/popular?language=en-EN&page=1`,
                     {
                         headers: {
                             Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,

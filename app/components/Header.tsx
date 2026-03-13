@@ -5,9 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, Bell } from "lucide-react";
 import Logo from "..//../public/img/icons/Logo.png"
+import {usePathname} from "next/navigation";
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -20,7 +22,15 @@ export default function Header() {
 
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [])
+
+    const navLinks = [
+        { href: "/Home", label: "Home" },
+        { href: "/Movies", label: "Movies & Shows" },
+        { href: "/Support", label: "Support" },
+        { href: "/Subscriptions", label: "Subscriptions" },
+    ];
+
 
     return (
         <header
@@ -34,11 +44,15 @@ export default function Header() {
                 </div>
             </div>
 
-            <nav className="hidden md:flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl p-2 px-2">
-                <NavLink href="/Home" label="Home" active/>
-                <NavLink href="/Movies" label="Movies & Shows" />
-                <NavLink href="/" label="Support" />
-                <NavLink href="/" label="Subscriptions" />
+            <nav className="hidden md:flex items-center gap-1 bg-black border border-[#1F1F1F] rounded-xl p-2">
+                {navLinks.map((link) => (
+                    <NavLink
+                        key={link.href}
+                        href={link.href}
+                        label={link.label}
+                        active={pathname === link.href} // Автоматическая проверка активности
+                    />
+                ))}
             </nav>
 
 

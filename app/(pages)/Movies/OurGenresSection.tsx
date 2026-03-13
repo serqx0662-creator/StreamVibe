@@ -31,7 +31,7 @@ export default function OurGenresSection() {
             try {
                 const results = await Promise.all(
                     GENRES.map(async (genre) => {
-                        const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre.id}&language=ru-RU&sort_by=popularity.desc&vote_count.gte=100`;
+                        const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre.id}&language=en-EN&sort_by=popularity.desc&vote_count.gte=100`;
                         const res = await fetch(url, {
                             method: 'GET',
                             headers: {

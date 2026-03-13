@@ -20,7 +20,7 @@ export default function TrendingNowSection() {
         const fetchMovies = async () => {
             try {
                 const res = await fetch(
-                    `https://api.themoviedb.org/3/trending/movie/week?language=ru-RU`,
+                    `https://api.themoviedb.org/3/trending/movie/week?language=en-EN`,
                     {
                         headers: {
                             Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,

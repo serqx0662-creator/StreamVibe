@@ -10,27 +10,53 @@ import CastSection from "./CastSection";
 import ReviewsSection from "./ReviewsSection";
 import MovieSidebar from "./MovieSidebar";
 
+interface Movie {
+    id: number;
+    title: string;
+    overview: string;
+    backdrop_path: string;
+    poster_path: string;
+    release_date: string;
+    vote_average: number;
+    genres: { id: number; name: string }[];
+    runtime: number;
+    spoken_languages: { english_name: string }[];
+}
+
+interface CastMember {
+    id: number;
+    name: string;
+    character: string;
+    profile_path: string | null;
+}
+
+interface Director {
+    id: number;
+    name: string;
+    job: string;
+}
+
 export default function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const id = resolvedParams.id;
 
-    const [movie, setMovie] = useState<any>(null);
-    const [cast, setCast] = useState<any[]>([]);
-    const [reviews, setReviews] = useState<any[]>([]);
-    const [director, setDirector] = useState<any>(null);
+    const [movie, setMovie] = useState<Movie | null>(null);
+    const [cast, setCast] = useState<CastMember[]>([]);
+    const [reviews, setReviews] = useState<any[]>([]); // Для похожих фильмов (reviews в твоем коде) можно тоже сделать интерфейс
+    const [director, setDirector] = useState<Director | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [movieRes, creditsRes, similarRes] = await Promise.all([
-                    fetch(`https://api.themoviedb.org/3/movie/${id}?language=ru-RU`, {
+                    fetch(`https://api.themoviedb.org/3/movie/${id}?language=en-EN`, {
                         headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`, accept: 'application/json' }
                     }),
-                    fetch(`https://api.themoviedb.org/3/movie/${id}/credits?language=ru-RU`, {
+                    fetch(`https://api.themoviedb.org/3/movie/${id}/credits?language=en-EN`, {
                         headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`, accept: 'application/json' }
                     }),
-                    fetch(`https://api.themoviedb.org/3/movie/${id}/similar?language=ru-RU&page=1`, {
+                    fetch(`https://api.themoviedb.org/3/movie/${id}/similar?language=en-EN&page=1`, {
                         headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`, accept: 'application/json' }
                     })
                 ]);
@@ -42,7 +68,8 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
                 setMovie(movieData);
                 setCast(creditsData.cast.slice(0, 15));
                 setReviews(similarData.results.slice(0, 5));
-                setDirector(creditsData.crew.find((person: any) => person.job === 'Director'));
+                const dir = creditsData.crew.find((person: Director) => person.job === 'Director');
+                setDirector(dir || null);
             } catch (error) {
                 console.error("Error:", error);
             } finally {
