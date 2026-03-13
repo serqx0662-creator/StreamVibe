@@ -45,14 +45,20 @@ export default function Header() {
             </div>
 
             <nav className="hidden md:flex items-center gap-1 bg-black border border-[#1F1F1F] rounded-xl p-2">
-                {navLinks.map((link) => (
-                    <NavLink
-                        key={link.href}
-                        href={link.href}
-                        label={link.label}
-                        active={pathname === link.href} // Автоматическая проверка активности
-                    />
-                ))}
+                {navLinks.map((link) => {
+                    const isActive =
+                        pathname === link.href ||
+                        (link.href !== "/Home" && pathname.startsWith(link.href));
+
+                    return (
+                        <NavLink
+                            key={link.href}
+                            href={link.href}
+                            label={link.label}
+                            active={isActive}
+                        />
+                    );
+                })}
             </nav>
 
 

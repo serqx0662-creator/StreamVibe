@@ -9,7 +9,9 @@ import DescriptionSection from "./DescriptionSection";
 import CastSection from "./CastSection";
 import ReviewsSection from "./ReviewsSection";
 import MovieSidebar from "./MovieSidebar";
+import TrialCTA from "@/app/components/TrialCTA";
 
+// Интерфейсы приведены в соответствие с требованиями Sidebar и Hero
 interface Movie {
     id: number;
     title: string;
@@ -20,7 +22,9 @@ interface Movie {
     vote_average: number;
     genres: { id: number; name: string }[];
     runtime: number;
-    spoken_languages: { english_name: string }[];
+    spoken_languages: { iso_639_1: string; english_name: string }[];
+    origin_country?: string[];
+    tagline?: string;
 }
 
 interface CastMember {
@@ -34,6 +38,7 @@ interface Director {
     id: number;
     name: string;
     job: string;
+    profile_path: string | null;
 }
 
 export default function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -42,7 +47,7 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
 
     const [movie, setMovie] = useState<Movie | null>(null);
     const [cast, setCast] = useState<CastMember[]>([]);
-    const [reviews, setReviews] = useState<any[]>([]); // Для похожих фильмов (reviews в твоем коде) можно тоже сделать интерфейс
+    const [reviews, setReviews] = useState<any[]>([]);
     const [director, setDirector] = useState<Director | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -68,7 +73,7 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
                 setMovie(movieData);
                 setCast(creditsData.cast.slice(0, 15));
                 setReviews(similarData.results.slice(0, 5));
-                const dir = creditsData.crew.find((person: Director) => person.job === 'Director');
+                const dir = creditsData.crew.find((person: any) => person.job === 'Director');
                 setDirector(dir || null);
             } catch (error) {
                 console.error("Error:", error);
@@ -81,27 +86,35 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
     }, [id]);
 
     if (loading) return <MovieSkeleton />;
-    if (!movie) return <div className="min-h-screen bg-[#0F0F0F] text-white flex items-center justify-center">Movie not found</div>;
+    if (!movie) return <div className="min-h-screen bg-[#0F0F0F] text-white flex items-center justify-center font-sans uppercase tracking-widest">Movie not found</div>;
 
     return (
         <div className="bg-[#0F0F0F] min-h-screen text-white flex flex-col font-sans">
             <Header />
 
-            <div className="flex-grow pb-20">
+            <main className="flex-grow pb-20">
                 <MovieDetailHero movie={movie} />
 
                 <div className="container mx-auto px-4 md:px-10 lg:px-16 mt-16">
-                    <div className="grid grid-cols-1 xl:grid-cols-[2fr,1fr] gap-8 items-start">
-                        <div className="flex flex-col gap-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+
+                        {/* ЛЕВАЯ ЧАСТЬ (Занимает 2 колонки из 3 на XL) */}
+                        <div className="xl:col-span-2 flex flex-col gap-6">
                             <DescriptionSection overview={movie.overview} />
                             <CastSection cast={cast} />
                             <ReviewsSection reviews={reviews} />
                         </div>
 
-                        <MovieSidebar movie={movie} director={director} />
+                        <div className="xl:col-span-1 xl:sticky xl:top-28">
+                            <MovieSidebar movie={movie} director={director} />
+                        </div>
+                    </div>
+
+                    <div className="mt-20">
+                        <TrialCTA />
                     </div>
                 </div>
-            </div>
+            </main>
 
             <Footer />
         </div>
@@ -112,15 +125,15 @@ function MovieSkeleton() {
     return (
         <div className="min-h-screen bg-[#0F0F0F] flex flex-col">
             <Header />
-            <div className="flex-grow p-10 md:p-20 flex flex-col gap-10">
-                <Skeleton className="w-full h-[60vh] bg-[#1A1A1A] rounded-3xl" />
-                <div className="grid grid-cols-1 xl:grid-cols-[2fr,1fr] gap-8">
-                    <div className="flex flex-col gap-6">
+            <div className="flex-grow container mx-auto px-4 md:px-10 lg:px-16 py-20 flex flex-col gap-10">
+                <Skeleton className="w-full h-[60vh] bg-[#1A1A1A] rounded-[40px]" />
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <div className="xl:col-span-2 flex flex-col gap-6">
                         <Skeleton className="h-[200px] bg-[#1A1A1A] rounded-2xl" />
                         <Skeleton className="h-[300px] bg-[#1A1A1A] rounded-2xl" />
                         <Skeleton className="h-[400px] bg-[#1A1A1A] rounded-2xl" />
                     </div>
-                    <Skeleton className="h-[600px] bg-[#1A1A1A] rounded-2xl" />
+                    <Skeleton className="xl:col-span-1 h-[600px] bg-[#1A1A1A] rounded-2xl" />
                 </div>
             </div>
             <Footer />

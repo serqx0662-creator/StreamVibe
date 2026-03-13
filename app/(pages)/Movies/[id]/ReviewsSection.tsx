@@ -1,11 +1,16 @@
 "use client";
 
 import React from 'react';
-import { Plus, Star } from 'lucide-react';
+import { Plus, Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from "@/app/components/ui/button";
 import { Card } from "@/app/components/ui/card";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
 
-// 1. Описываем интерфейс для данных (в твоем случае это объекты похожих фильмов)
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
 interface ReviewItem {
     id: number;
     overview: string;
@@ -13,7 +18,7 @@ interface ReviewItem {
 }
 
 interface ReviewsSectionProps {
-    reviews: ReviewItem[]; // Заменяем any[]
+    reviews: ReviewItem[];
 }
 
 export default function ReviewsSection({ reviews }: ReviewsSectionProps) {
@@ -23,64 +28,121 @@ export default function ReviewsSection({ reviews }: ReviewsSectionProps) {
                 <h3 className="text-[#999999] font-medium text-lg">Reviews</h3>
                 <Button
                     variant="outline"
-                    className="bg-[#141414] border-[#262626] text-white gap-2 hover:bg-[#262626] text-xs h-10 px-4"
+                    className="bg-[#141414] border-[#262626] text-white gap-2 hover:bg-[#262626] text-xs h-12 px-5 rounded-lg"
                 >
-                    <Plus size={16}/> Add Your Review
+                    <Plus size={18}/> Add Your Review
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative">
                 {reviews.length > 0 ? (
-                    reviews.slice(0, 2).map((review) => (
-                        <ReviewCard key={review.id} review={review} />
-                    ))
+                    <>
+                        <Swiper
+                            modules={[Navigation, Pagination]}
+                            spaceBetween={20}
+                            slidesPerView={1}
+                            navigation={{
+                                prevEl: '.reviews-prev',
+                                nextEl: '.reviews-next',
+                            }}
+                            pagination={{
+                                el: '.reviews-pagination',
+                                clickable: true,
+                                renderBullet: (index, className) => {
+                                    return `<span class="${className} custom-bullet"></span>`;
+                                },
+                            }}
+                            breakpoints={{
+                                768: { slidesPerView: 2 },
+                            }}
+                            className="pb-16"
+                        >
+                            {reviews.map((review) => (
+                                <SwiperSlide key={review.id}>
+                                    <ReviewCard review={review} />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+
+                        {/* Навигация как на скриншоте */}
+                        <div className="flex justify-center items-center gap-6 mt-10">
+                            {/* Кнопка Назад */}
+                            <Button
+                                size="icon"
+                                className="reviews-prev flex-shrink-0 bg-[#141414] border border-[#262626] rounded-full w-12 h-12 text-white hover:bg-[#262626] transition-all"
+                            >
+                                <ArrowLeft size={20} />
+                            </Button>
+
+                            {/* Контейнер пагинации (буллеты) */}
+                            <div className="reviews-pagination flex items-center justify-center gap-1.5 min-w-max" />
+
+                            {/* Кнопка Вперед */}
+                            <Button
+                                size="icon"
+                                className="reviews-next flex-shrink-0 bg-[#141414] border border-[#262626] rounded-full w-12 h-12 text-white hover:bg-[#262626] transition-all"
+                            >
+                                <ArrowRight size={20} />
+                            </Button>
+                        </div>
+                    </>
                 ) : (
                     <p className="text-[#666666] text-sm">No reviews available yet.</p>
                 )}
             </div>
+
+            <style jsx global>{`
+                .custom-bullet {
+                    width: 16px;
+                    height: 4px;
+                    background: #333333 !important;
+                    border-radius: 10px;
+                    opacity: 1 !important;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                    display: inline-block;
+                }
+                .swiper-pagination-bullet-active.custom-bullet {
+                    width: 24px;
+                    background: #E50000 !important;
+                }
+            `}</style>
         </div>
     );
 }
 
-// 2. Типизируем пропсы карточки
-interface ReviewCardProps {
-    review: ReviewItem;
-}
-
-function ReviewCard({ review }: ReviewCardProps) {
-    // Рассчитываем рейтинг на основе vote_average (из 10 в 5 звезд)
+function ReviewCard({ review }: { review: ReviewItem }) {
     const rating = movieRatingToFive(review.vote_average);
 
     return (
-        <Card className="bg-[#141414] border border-[#262626] p-6 rounded-xl space-y-4 shadow-none">
+        <Card className="bg-[#141414] border border-[#262626] p-6 md:p-8 rounded-xl space-y-5 h-full min-h-[220px]">
             <div className="flex justify-between items-start">
                 <div>
-                    <h4 className="font-medium text-white">User Review</h4>
-                    <p className="text-xs text-[#666666]">From Movie Portal</p>
+                    <h4 className="font-medium text-white text-lg">Aniket Roy</h4>
+                    <p className="text-sm text-[#666666]">From India</p>
                 </div>
-                <div className="flex items-center gap-1 bg-[#0F0F0F] px-3 py-1.5 rounded-full border border-[#262626]">
+                <div className="flex items-center gap-1.5 bg-[#0F0F0F] px-3 py-1.5 rounded-full border border-[#262626]">
                     <div className="flex text-[#E50000]">{renderStars(rating)}</div>
-                    <span className="text-xs font-bold ml-1 text-white">{rating.toFixed(1)}</span>
+                    <span className="text-sm font-bold ml-1 text-[#999999]">{rating.toFixed(1)}</span>
                 </div>
             </div>
-            <p className="text-[#999999] text-sm leading-relaxed line-clamp-4 italic">
-                "{review.overview || "This movie offers an incredible cinematic experience with great visuals."}"
+            <p className="text-[#999999] text-sm md:text-base leading-relaxed line-clamp-5">
+                {review.overview || "This movie offers an incredible cinematic experience with great visuals and emotional depth."}
             </p>
         </Card>
     );
 }
 
-// Вспомогательные функции
 const movieRatingToFive = (rating: number) => {
-    return rating > 0 ? rating / 2 : 4.5; // Если рейтинга нет, ставим дефолт
+    return rating > 0 ? rating / 2 : 4.5;
 };
 
 const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, i) => (
         <Star
             key={i}
-            size={14}
-            className={i < Math.floor(rating) ? "fill-current" : "opacity-30"}
+            size={16}
+            className={i < Math.floor(rating) ? "fill-[#E50000] text-[#E50000]" : "text-[#333333]"}
         />
     ));
 };
