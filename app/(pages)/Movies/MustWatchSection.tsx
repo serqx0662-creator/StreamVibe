@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import { ArrowRight, ArrowLeft, Play, Plus, Clock } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { Button } from "@/app/components/ui/button";
@@ -101,46 +102,48 @@ export default function MustWatchSection() {
                 ) : (
                     movies.map((movie) => (
                         <SwiperSlide key={movie.id}>
-                            <Card className="bg-[#1A1A1A] border-[#262626] p-3 md:p-4 rounded-[16px] hover:bg-[#212121] transition-all group cursor-pointer relative overflow-hidden">
-                                <CardContent className="p-0">
-                                    <div className="relative aspect-[2/3] overflow-hidden rounded-xl mb-3 bg-[#262626]">
-                                        {movie.poster_path && (
-                                            <Image
-                                                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                                                alt={movie.title}
-                                                fill
-                                                sizes="(max-width: 768px) 50vw, 25vw"
-                                                className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                        )}
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                            <Button size="icon" className="w-10 h-10 bg-[#E50000] hover:bg-[#FF1A1A] rounded-full">
-                                                <Play fill="white" size={18} />
-                                            </Button>
-                                            <Button size="icon" className="w-10 h-10 bg-[#0F0F0F]/80 border border-[#262626] hover:bg-[#1A1A1A] rounded-full">
-                                                <Plus size={18} />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <span className="text-white text-sm md:text-base font-medium line-clamp-1 block">
-                                            {movie.title}
-                                        </span>
-
-                                        <div className="flex items-center justify-between text-xs text-[#999999]">
-                                            <div className="flex items-center gap-1">
-                                                <Clock size={14} />
-                                                <span>{movie.release_date?.split('-')[0] || 'N/A'}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <span>⭐</span>
-                                                <span>{movie.vote_average.toFixed(1)}</span>
+                            <Link href={`/Movies/${movie.id}`}>
+                                <Card className="bg-[#1A1A1A] border-[#262626] p-3 md:p-4 rounded-[16px] hover:bg-[#212121] transition-all group cursor-pointer relative overflow-hidden">
+                                    <CardContent className="p-0">
+                                        <div className="relative aspect-[2/3] overflow-hidden rounded-xl mb-3 bg-[#262626]">
+                                            {movie.poster_path && (
+                                                <Image
+                                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                                    alt={movie.title}
+                                                    fill
+                                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                                />
+                                            )}
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                <Button size="icon" className="w-10 h-10 bg-[#E50000] hover:bg-[#FF1A1A] rounded-full">
+                                                    <Play fill="white" size={18} />
+                                                </Button>
+                                                <Button size="icon" className="w-10 h-10 bg-[#0F0F0F]/80 border border-[#262626] hover:bg-[#1A1A1A] rounded-full">
+                                                    <Plus size={18} />
+                                                </Button>
                                             </div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+
+                                        <div className="space-y-2">
+                                            <span className="text-white text-sm md:text-base font-medium line-clamp-1 block">
+                                                {movie.title}
+                                            </span>
+
+                                            <div className="flex items-center justify-between text-xs text-[#999999]">
+                                                <div className="flex items-center gap-1">
+                                                    <Clock size={14} />
+                                                    <span>{movie.release_date?.split('-')[0] || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <span>⭐</span>
+                                                    <span>{movie.vote_average.toFixed(1)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
                         </SwiperSlide>
                     ))
                 )}
