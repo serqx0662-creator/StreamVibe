@@ -1,7 +1,7 @@
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import PricingPlans from "./PricingPlans";
 import ComparisonTable from "./ComparisonTable";
+import PricingSection from "@/app/(pages)/Home/PricingSection";
 
 export default function SubscriptionsPage() {
     return (
@@ -9,7 +9,7 @@ export default function SubscriptionsPage() {
             <Header />
 
             <main className="flex flex-col">
-                <PricingPlans />
+                <PricingSection/>
                 <ComparisonTable />
             </main>
 

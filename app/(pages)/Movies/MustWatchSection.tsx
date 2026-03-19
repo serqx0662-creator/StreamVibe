@@ -1,8 +1,9 @@
-"use client"
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import { ArrowRight, ArrowLeft, Play, Plus, Clock } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Play, Clock, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from "@/app/components/ui/card";
@@ -12,9 +13,21 @@ import { Button } from "@/app/components/ui/button";
 import 'swiper/css';
 import 'swiper/css/pagination';
 
+interface Movie {
+    id: number;
+    title: string;
+    poster_path: string | null;
+    vote_average: number;
+    popularity: number;
+}
+
 export default function MustWatchSection() {
-    const [movies, setMovies] = useState<any[]>([]);
+    const [movies, setMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+
+    const [prevEl, setPrevEl] = useState<HTMLElement | null>(null);
+    const [nextEl, setNextEl] = useState<HTMLElement | null>(null);
+    const [paginationEl, setPaginationEl] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -29,7 +42,10 @@ export default function MustWatchSection() {
                     }
                 );
                 const data = await res.json();
-                setMovies(data.results.slice(0, 10));
+                const validMovies: Movie[] = data.results
+                    .filter((m: Movie) => m.poster_path !== null)
+                    .slice(0, 10);
+                setMovies(validMovies);
             } catch (error) {
                 console.error("Error fetching movies:", error);
             } finally {
@@ -39,130 +55,132 @@ export default function MustWatchSection() {
         fetchMovies();
     }, []);
 
-    const formatRuntime = (minutes: number) => {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return `${hours}h ${mins}m`;
+    const renderStars = (rating: number) => {
+        const starsCount = Math.round(rating / 2);
+        return (
+            <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                    <Star
+                        key={i}
+                        size={14}
+                        className={i < starsCount ? "fill-[#E50000] text-[#E50000]" : "text-[#4C4C4C]"}
+                    />
+                ))}
+            </div>
+        );
     };
 
     return (
         <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 md:mb-12 gap-6">
-                <div className="max-w-[800px]">
-                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
-                        Must - Watch Movies
-                    </h2>
-                </div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
+                    Must - Watch Movies
+                </h2>
 
                 <div className="flex items-center gap-2 md:gap-3 bg-[#0A0A0A] border border-[#1A1A1A] p-2 rounded-xl">
                     <Button
+                        ref={(node) => setPrevEl(node)}
                         variant="ghost"
                         size="icon"
-                        className="must-prev-btn w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] hover:text-white rounded-lg transition-all"
+                        className="w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all active:scale-95"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
 
-                    <div className="must-pagination flex items-center gap-1 px-1 md:px-2" />
+                    <div ref={(node) => setPaginationEl(node)} className="must-pagination flex items-center gap-1 px-2 min-w-[60px] justify-center" />
 
                     <Button
+                        ref={(node) => setNextEl(node)}
                         variant="ghost"
                         size="icon"
-                        className="must-next-btn w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] hover:text-white rounded-lg transition-all"
+                        className="w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all active:scale-95"
                     >
                         <ArrowRight className="w-5 h-5" />
                     </Button>
                 </div>
             </div>
 
-            <Swiper
-                modules={[Navigation, Pagination]}
-                spaceBetween={16}
-                slidesPerView={1.5}
-                slidesPerGroup={1}
-                navigation={{ prevEl: '.must-prev-btn', nextEl: '.must-next-btn' }}
-                pagination={{
-                    el: '.must-pagination',
-                    clickable: true,
-                    renderBullet: (index, className) => index < 5 ? `<span class="${className} must-bullet"></span>` : "",
-                }}
-                breakpoints={{
-                    480: { slidesPerView: 2.2 },
-                    768: { slidesPerView: 3.2, slidesPerGroup: 2 },
-                    1024: { slidesPerView: 4, slidesPerGroup: 2, spaceBetween: 20 }
-                }}
-                loop={true}
-            >
-                {loading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <SwiperSlide key={i}>
-                            <Skeleton className="h-[380px] md:h-[420px] w-full bg-[#1A1A1A] rounded-[16px]" />
-                        </SwiperSlide>
-                    ))
-                ) : (
-                    movies.map((movie) => (
+            {loading ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-[380px] w-full bg-[#1A1A1A] rounded-[20px]" />
+                    ))}
+                </div>
+            ) : (
+                <Swiper
+                    key={prevEl ? 'ready' : 'loading'}
+                    modules={[Navigation, Pagination]}
+                    spaceBetween={16}
+                    slidesPerView={1.2}
+                    loop={true}
+                    navigation={{ prevEl, nextEl }}
+                    pagination={{
+                        el: paginationEl,
+                        clickable: true,
+                        renderBullet: (index, className) => index < 5 ? `<span class="${className} must-bullet"></span>` : "",
+                    }}
+                    breakpoints={{
+                        480: { slidesPerView: 2.2 },
+                        768: { slidesPerView: 3.2, slidesPerGroup: 2 },
+                        1024: { slidesPerView: 4, slidesPerGroup: 2, spaceBetween: 20 }
+                    }}
+                >
+                    {movies.map((movie) => (
                         <SwiperSlide key={movie.id}>
                             <Link href={`/Movies/${movie.id}`}>
-                                <Card className="bg-[#1A1A1A] border-[#262626] p-3 md:p-4 rounded-[16px] hover:bg-[#212121] transition-all group cursor-pointer relative overflow-hidden">
-                                    <CardContent className="p-0">
-                                        <div className="relative aspect-[2/3] overflow-hidden rounded-xl mb-3 bg-[#262626]">
-                                            {movie.poster_path && (
-                                                <Image
-                                                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                                                    alt={movie.title}
-                                                    fill
-                                                    sizes="(max-width: 768px) 50vw, 25vw"
-                                                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                                />
-                                            )}
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                <Button size="icon" className="w-10 h-10 bg-[#E50000] hover:bg-[#FF1A1A] rounded-full">
-                                                    <Play fill="white" size={18} />
-                                                </Button>
-                                                <Button size="icon" className="w-10 h-10 bg-[#0F0F0F]/80 border border-[#262626] hover:bg-[#1A1A1A] rounded-full">
-                                                    <Plus size={18} />
+                                <Card className="bg-[#1A1A1A] border-none p-3 md:p-4 rounded-[20px] hover:bg-[#1F1F1F] transition-all group cursor-pointer h-full">
+                                    <CardContent className="p-0 flex flex-col h-full">
+                                        <div className="relative aspect-[2/3] overflow-hidden rounded-xl mb-4 bg-[#262626] shadow-lg">
+                                            <Image
+                                                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                                alt={movie.title}
+                                                fill
+                                                className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent opacity-85" />
+
+                                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Button size="icon" className="w-12 h-12 bg-[#E50000] hover:bg-[#FF1A1A] rounded-full shadow-xl">
+                                                    <Play fill="white" size={20} className="ml-1" />
                                                 </Button>
                                             </div>
                                         </div>
 
-                                        <div className="space-y-2">
-                                            <span className="text-white text-sm md:text-base font-medium line-clamp-1 block">
-                                                {movie.title}
-                                            </span>
-
-                                            <div className="flex items-center justify-between text-xs text-[#999999]">
-                                                <div className="flex items-center gap-1">
-                                                    <Clock size={14} />
-                                                    <span>{movie.release_date?.split('-')[0] || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <span>⭐</span>
-                                                    <span>{movie.vote_average.toFixed(1)}</span>
-                                                </div>
+                                        <div className="flex items-center justify-between text-[#999999] text-[10px] md:text-xs mb-3">
+                                            <div className="flex items-center gap-1 bg-[#141414] px-2 py-1 rounded-full border border-[#262626]">
+                                                <Clock size={12} className="text-[#4C4C4C]" />
+                                                <span>1h 57min</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 bg-[#141414] px-2 py-1 rounded-full border border-[#262626]">
+                                                {renderStars(movie.vote_average)}
+                                                <span className="text-[#999999]">{(movie.popularity / 10).toFixed(0)}K</span>
                                             </div>
                                         </div>
+
+                                        <h3 className="text-white text-sm md:text-base font-semibold truncate group-hover:text-[#E50000] transition-colors">
+                                            {movie.title}
+                                        </h3>
                                     </CardContent>
                                 </Card>
                             </Link>
                         </SwiperSlide>
-                    ))
-                )}
-            </Swiper>
+                    ))}
+                </Swiper>
+            )}
 
             <style jsx global>{`
                 .must-bullet {
-                    width: 12px;
-                    height: 4px;
-                    background-color: #333333;
-                    border-radius: 999px;
+                    width: 12px !important;
+                    height: 4px !important;
+                    background-color: #333333 !important;
+                    border-radius: 2px !important;
                     opacity: 1 !important;
                     display: inline-block;
                     transition: all 0.3s ease;
-                    cursor: pointer;
                 }
                 .swiper-pagination-bullet-active.must-bullet {
-                    width: 20px;
-                    background-color: #E50000;
+                    width: 24px !important;
+                    background-color: #E50000 !important;
                 }
             `}</style>
         </section>

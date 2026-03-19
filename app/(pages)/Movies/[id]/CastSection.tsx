@@ -10,7 +10,6 @@ import { Button } from "@/app/components/ui/button";
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-// 1. Описываем интерфейс актера
 interface CastMember {
     id: number;
     name: string;
@@ -18,7 +17,7 @@ interface CastMember {
 }
 
 interface CastSectionProps {
-    cast: CastMember[]; // Заменяем any[] на типизированный массив
+    cast: CastMember[];
 }
 
 export default function CastSection({ cast }: CastSectionProps) {

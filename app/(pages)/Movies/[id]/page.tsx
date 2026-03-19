@@ -11,7 +11,7 @@ import ReviewsSection from "./ReviewsSection";
 import MovieSidebar from "./MovieSidebar";
 import TrialCTA from "@/app/components/TrialCTA";
 
-// Интерфейсы приведены в соответствие с требованиями Sidebar и Hero
+
 interface Movie {
     id: number;
     title: string;
@@ -41,20 +41,36 @@ interface Director {
     profile_path: string | null;
 }
 
+interface SimilarMovie {
+    id: number;
+    title?: string;
+    name?: string;
+    poster_path: string;
+    vote_average: number;
+    overview: string;
+}
+
+interface VideoResult {
+    key: string;
+    site: string;
+    type: string;
+}
+
 export default function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const id = resolvedParams.id;
 
     const [movie, setMovie] = useState<Movie | null>(null);
     const [cast, setCast] = useState<CastMember[]>([]);
-    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviews, setReviews] = useState<SimilarMovie[]>([]); // Заменили any[]
     const [director, setDirector] = useState<Director | null>(null);
+    const [videoKey, setVideoKey] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [movieRes, creditsRes, similarRes] = await Promise.all([
+                const [movieRes, creditsRes, similarRes, videoRes] = await Promise.all([
                     fetch(`https://api.themoviedb.org/3/movie/${id}?language=en-EN`, {
                         headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`, accept: 'application/json' }
                     }),
@@ -63,20 +79,31 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
                     }),
                     fetch(`https://api.themoviedb.org/3/movie/${id}/similar?language=en-EN&page=1`, {
                         headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`, accept: 'application/json' }
+                    }),
+                    fetch(`https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`, {
+                        headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`, accept: 'application/json' }
                     })
                 ]);
 
-                const movieData = await movieRes.json();
+                const movieData: Movie = await movieRes.json();
                 const creditsData = await creditsRes.json();
                 const similarData = await similarRes.json();
+                const videoData = await videoRes.json();
 
                 setMovie(movieData);
                 setCast(creditsData.cast.slice(0, 15));
-                setReviews(similarData.results.slice(0, 5));
-                const dir = creditsData.crew.find((person: any) => person.job === 'Director');
+
+                setReviews(similarData.results.slice(0, 5) as SimilarMovie[]);
+
+                const trailer = videoData.results.find(
+                    (v: VideoResult) => v.type === "Trailer" && v.site === "YouTube"
+                );
+                setVideoKey(trailer ? trailer.key : videoData.results[0]?.key || null);
+
+                const dir = creditsData.crew.find((person: Director) => person.job === 'Director');
                 setDirector(dir || null);
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error fetching data:", error);
             } finally {
                 setLoading(false);
             }
@@ -93,13 +120,11 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
             <Header />
 
             <main className="flex-grow pb-20">
-                <MovieDetailHero movie={movie} />
+                <MovieDetailHero movie={movie} videoKey={videoKey} />
 
                 <div className="container mx-auto px-4 md:px-10 lg:px-16 mt-16">
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-
-                        {/* ЛЕВАЯ ЧАСТЬ (Занимает 2 колонки из 3 на XL) */}
-                        <div className="xl:col-span-2 flex flex-col gap-6">
+                        <div className="xl:col-span-2 flex flex-col gap-10">
                             <DescriptionSection overview={movie.overview} />
                             <CastSection cast={cast} />
                             <ReviewsSection reviews={reviews} />

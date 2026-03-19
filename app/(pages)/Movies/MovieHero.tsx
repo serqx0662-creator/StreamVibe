@@ -11,8 +11,19 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+
+interface MovieListItem {
+    id: number;
+    title: string;
+    poster_path: string | null;
+    backdrop_path: string | null;
+    vote_average: number;
+    release_date: string;
+    overview: string;
+}
+
 export default function MovieHero() {
-    const [movies, setMovies] = useState<any[]>([]);
+    const [movies, setMovies] = useState<MovieListItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -78,7 +89,6 @@ export default function MovieHero() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/40 to-transparent" />
                                 </div>
 
-                                {/* Контент */}
                                 <div className="relative z-10 w-full max-w-[1000px] px-4 text-center">
                                     <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
                                         {movie.title}
@@ -87,7 +97,6 @@ export default function MovieHero() {
                                         {movie.overview}
                                     </p>
 
-                                    {/* Кнопки */}
                                     <div className="flex flex-wrap justify-center items-center gap-3 mb-10 md:mb-16">
                                         <Link href={`/Movies/${movie.id}`}>
                                             <Button className="bg-[#E50000] hover:bg-[#FF1A1A] text-white px-6 md:px-8 py-5 md:py-7 rounded-lg font-semibold flex gap-2">
@@ -111,7 +120,6 @@ export default function MovieHero() {
                         </SwiperSlide>
                     ))}
 
-                    {/* Навигация */}
                     <div className="absolute bottom-6 md:bottom-12 left-0 right-0 z-20 px-6 md:px-12 flex justify-between items-center pointer-events-none">
                         <Button
                             variant="ghost"

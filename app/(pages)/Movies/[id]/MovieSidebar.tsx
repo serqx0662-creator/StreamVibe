@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { CalendarDays, Languages, Star, Layers3, User, Music } from 'lucide-react';
 import { Badge } from "@/app/components/ui/badge";
 
-// 1. Определяем интерфейсы для вложенных данных
 interface Genre {
     id: number;
     name: string;
@@ -105,7 +104,6 @@ export default function MovieSidebar({ movie, director }: MovieSidebarProps) {
     );
 }
 
-// --- Вспомогательные компоненты с типами ---
 
 interface SidebarItemProps {
     icon?: React.ReactNode;

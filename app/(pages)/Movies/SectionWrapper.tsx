@@ -1,7 +1,6 @@
-// app/components/SectionWrapper.tsx
 interface SectionWrapperProps {
     children: React.ReactNode;
-    label?: string; // Текст для красного значка (например, "Movies")
+    label?: string;
 }
 
 export default function SectionWrapper({ children, label }: SectionWrapperProps) {

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import { ArrowRight, ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Play } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from "@/app/components/ui/card";
@@ -13,15 +13,15 @@ import { Button } from "@/app/components/ui/button";
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-interface Movie {
+interface Show {
     id: number;
-    title: string;
+    name: string;
     poster_path: string | null;
-    release_date: string;
+    first_air_date: string;
 }
 
-export default function NewReleasesSection() {
-    const [movies, setMovies] = useState<Movie[]>([]);
+export default function ShowsNewReleasesSection() {
+    const [shows, setShows] = useState<Show[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const [prevEl, setPrevEl] = useState<HTMLElement | null>(null);
@@ -29,10 +29,10 @@ export default function NewReleasesSection() {
     const [paginationEl, setPaginationEl] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
-        const fetchNewReleases = async () => {
+        const fetchNewShows = async () => {
             try {
                 const res = await fetch(
-                    `https://api.themoviedb.org/3/movie/now_playing?language=en-EN&page=1`,
+                    `https://api.themoviedb.org/3/tv/on_the_air?language=en-EN&page=1`,
                     {
                         headers: {
                             Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
@@ -41,34 +41,31 @@ export default function NewReleasesSection() {
                     }
                 );
                 const data = await res.json();
-                const validMovies: Movie[] = data.results
-                    .filter((m: Movie) => m.poster_path !== null)
-                    .slice(0, 10);
-                setMovies(validMovies);
+                setShows(data.results.slice(0, 10));
             } catch (error) {
-                console.error("Error fetching new releases:", error);
+                console.error("Error fetching new shows:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchNewReleases();
+        fetchNewShows();
     }, []);
 
-    const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
+    const formatDate = (dateString: string) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
         return date.toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'long',
-            year: 'numeric'
+            year: 'numeric',
         });
     };
 
     return (
         <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-10">
-            {/* Header */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 md:mb-12 gap-6">
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
-                    New Releases
+                    New Released Shows
                 </h2>
 
                 <div className="flex items-center gap-2 md:gap-3 bg-[#0A0A0A] border border-[#1A1A1A] p-2 rounded-xl">
@@ -76,18 +73,18 @@ export default function NewReleasesSection() {
                         ref={(node) => setPrevEl(node)}
                         variant="ghost"
                         size="icon"
-                        className="w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all active:scale-95"
+                        className="w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
 
-                    <div ref={(node) => setPaginationEl(node)} className="new-releases-pagination flex items-center gap-1 px-2 min-w-[60px] justify-center" />
+                    <div ref={(node) => setPaginationEl(node)} className="new-shows-pagination flex items-center gap-1 px-2 min-w-[60px] justify-center" />
 
                     <Button
                         ref={(node) => setNextEl(node)}
                         variant="ghost"
                         size="icon"
-                        className="w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all active:scale-95"
+                        className="w-9 h-9 md:w-11 md:h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
                     >
                         <ArrowRight className="w-5 h-5" />
                     </Button>
@@ -97,7 +94,7 @@ export default function NewReleasesSection() {
             {loading ? (
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                        <Skeleton key={i} className="h-[350px] w-full bg-[#1A1A1A] rounded-[20px]" />
+                        <Skeleton key={i} className="h-[380px] w-full bg-[#1A1A1A] rounded-[20px]" />
                     ))}
                 </div>
             ) : (
@@ -111,7 +108,7 @@ export default function NewReleasesSection() {
                     pagination={{
                         el: paginationEl,
                         clickable: true,
-                        renderBullet: (index, className) => index < 5 ? `<span class="${className} nr-bullet"></span>` : "",
+                        renderBullet: (index, className) => index < 5 ? `<span class="${className} ns-bullet"></span>` : "",
                     }}
                     breakpoints={{
                         480: { slidesPerView: 2.2 },
@@ -119,26 +116,34 @@ export default function NewReleasesSection() {
                         1024: { slidesPerView: 5, slidesPerGroup: 2, spaceBetween: 20 }
                     }}
                 >
-                    {movies.map((movie) => (
-                        <SwiperSlide key={movie.id}>
-                            <Link href={`/Movies/${movie.id}`}>
+                    {shows.map((show) => (
+                        <SwiperSlide key={show.id}>
+                            <Link href={`/Shows/${show.id}`} className="block h-full">
                                 <Card className="bg-[#1A1A1A] border-none p-3 md:p-4 rounded-[20px] hover:bg-[#1F1F1F] transition-all group cursor-pointer h-full">
                                     <CardContent className="p-0 flex flex-col h-full">
-                                        <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-xl mb-4 bg-[#262626] shadow-lg">
+                                        <div className="relative aspect-[2/3] overflow-hidden rounded-xl mb-4 bg-[#262626]">
                                             <Image
-                                                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                                                alt={movie.title}
+                                                src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
+                                                alt={show.name}
                                                 fill
                                                 className="object-cover group-hover:scale-110 transition-transform duration-700"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80" />
+                                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Button size="icon" className="w-12 h-12 bg-[#E50000] hover:bg-[#FF1A1A] rounded-full shadow-xl">
+                                                    <Play fill="white" size={20} className="ml-1" />
+                                                </Button>
+                                            </div>
                                         </div>
 
-                                        <div className="mt-auto bg-[#141414] border border-[#262626] rounded-full py-2 px-4 flex items-center justify-center gap-2">
-                                            <span className="text-[#999999] text-[10px] md:text-xs font-medium">
-                                                Released at <span className="text-white">{formatDate(movie.release_date)}</span>
+                                        <div className="bg-[#141414] border border-[#262626] rounded-lg py-2 px-3 flex items-center justify-center mb-3">
+                                            <span className="text-[#999999] text-[10px] md:text-xs">
+                                                Released at <span className="text-white ml-1">{formatDate(show.first_air_date)}</span>
                                             </span>
                                         </div>
+
+                                        <h3 className="text-white text-sm md:text-base font-semibold truncate text-center group-hover:text-[#E50000] transition-colors">
+                                            {show.name}
+                                        </h3>
                                     </CardContent>
                                 </Card>
                             </Link>
@@ -148,7 +153,7 @@ export default function NewReleasesSection() {
             )}
 
             <style jsx global>{`
-                .nr-bullet {
+                .ns-bullet {
                     width: 12px !important;
                     height: 4px !important;
                     background-color: #333333 !important;
@@ -157,7 +162,7 @@ export default function NewReleasesSection() {
                     display: inline-block;
                     transition: all 0.3s ease;
                 }
-                .swiper-pagination-bullet-active.nr-bullet {
+                .swiper-pagination-bullet-active.ns-bullet {
                     width: 24px !important;
                     background-color: #E50000 !important;
                 }

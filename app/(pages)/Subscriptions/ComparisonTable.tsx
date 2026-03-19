@@ -77,9 +77,7 @@ export default function ComparisonTable() {
                 </p>
             </div>
 
-            {/* Comparison Table */}
             <div className="bg-[#0F0F0F] border border-[#262626] rounded-xl overflow-hidden">
-                {/* Desktop Table */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
                         <thead>
@@ -127,7 +125,6 @@ export default function ComparisonTable() {
                     </table>
                 </div>
 
-                {/* Mobile Cards */}
                 <div className="md:hidden space-y-6 p-4">
                     {comparisonData.map((row, index) => (
                         <div key={index} className="bg-[#1A1A1A] border border-[#262626] rounded-lg p-4">

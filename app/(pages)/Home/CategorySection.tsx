@@ -11,7 +11,25 @@ import { Button } from "@/app/components/ui/button";
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-const GENRES = [
+
+interface Genre {
+    id: number;
+    name: string;
+}
+
+interface GenreWithImages extends Genre {
+    images: string[];
+}
+
+interface TMDBMovie {
+    poster_path: string | null;
+}
+
+interface TMDBResponse {
+    results: TMDBMovie[];
+}
+
+const GENRES: Genre[] = [
     { id: 28, name: "Action" },
     { id: 12, name: "Adventure" },
     { id: 35, name: "Comedy" },
@@ -25,15 +43,15 @@ const GENRES = [
 ];
 
 export default function CategoriesSection() {
-    const [categoriesData, setCategoriesData] = useState<any[]>([]);
+    const [categoriesData, setCategoriesData] = useState<GenreWithImages[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const results = await Promise.all(
+                const results: GenreWithImages[] = await Promise.all(
                     GENRES.map(async (genre) => {
-                        const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre.id}&language=ru-RU&sort_by=popularity.desc&vote_count.gte=100`;
+                        const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre.id}&language=en-EN&sort_by=popularity.desc&vote_count.gte=100`;
                         const res = await fetch(url, {
                             method: 'GET',
                             headers: {
@@ -41,8 +59,14 @@ export default function CategoriesSection() {
                                 Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`
                             }
                         });
-                        const data = await res.json();
-                        const images = data.results?.filter((m: any) => m.poster_path).slice(0, 4).map((m: any) => `https://image.tmdb.org/t/p/w500${m.poster_path}`) || [];
+
+                        const data: TMDBResponse = await res.json();
+
+                        const images = data.results
+                            ?.filter((m) => m.poster_path !== null)
+                            .slice(0, 4)
+                            .map((m) => `https://image.tmdb.org/t/p/w500${m.poster_path}`) || [];
+
                         return { ...genre, images };
                     })
                 );
@@ -68,6 +92,7 @@ export default function CategoriesSection() {
                     </p>
                 </div>
 
+                {/* Навигация */}
                 <div className="flex items-center gap-2 md:gap-3 bg-[#0A0A0A] border border-[#1A1A1A] p-2 rounded-xl">
                     <Button
                         variant="ghost"
@@ -119,7 +144,7 @@ export default function CategoriesSection() {
                             <Card className="bg-[#1A1A1A] border-[#262626] p-3 md:p-4 rounded-[16px] md:rounded-[20px] hover:bg-[#212121] transition-all group cursor-pointer">
                                 <CardContent className="p-0">
                                     <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4 relative overflow-hidden rounded-xl">
-                                        {cat.images.map((imgUrl: string, idx: number) => (
+                                        {cat.images.map((imgUrl, idx) => (
                                             <div key={idx} className="relative aspect-[2/3] overflow-hidden bg-[#262626]">
                                                 <Image
                                                     src={imgUrl}

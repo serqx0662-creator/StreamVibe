@@ -11,14 +11,14 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-interface ReviewItem {
+export interface SimilarShow {
     id: number;
     overview: string;
     vote_average: number;
+    name?: string;
 }
-
 interface ReviewsSectionProps {
-    reviews: ReviewItem[];
+    reviews: SimilarShow[];
 }
 
 export default function ReviewsSection({ reviews }: ReviewsSectionProps) {
@@ -64,9 +64,7 @@ export default function ReviewsSection({ reviews }: ReviewsSectionProps) {
                             ))}
                         </Swiper>
 
-                        {/* Навигация как на скриншоте */}
                         <div className="flex justify-center items-center gap-6 mt-10">
-                            {/* Кнопка Назад */}
                             <Button
                                 size="icon"
                                 className="reviews-prev flex-shrink-0 bg-[#141414] border border-[#262626] rounded-full w-12 h-12 text-white hover:bg-[#262626] transition-all"
@@ -74,10 +72,8 @@ export default function ReviewsSection({ reviews }: ReviewsSectionProps) {
                                 <ArrowLeft size={20} />
                             </Button>
 
-                            {/* Контейнер пагинации (буллеты) */}
                             <div className="reviews-pagination flex items-center justify-center gap-1.5 min-w-max" />
 
-                            {/* Кнопка Вперед */}
                             <Button
                                 size="icon"
                                 className="reviews-next flex-shrink-0 bg-[#141414] border border-[#262626] rounded-full w-12 h-12 text-white hover:bg-[#262626] transition-all"
@@ -111,7 +107,7 @@ export default function ReviewsSection({ reviews }: ReviewsSectionProps) {
     );
 }
 
-function ReviewCard({ review }: { review: ReviewItem }) {
+function ReviewCard({ review }: { review: SimilarShow }) {
     const rating = movieRatingToFive(review.vote_average);
 
     return (

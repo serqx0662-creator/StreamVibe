@@ -1,8 +1,8 @@
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SupportHero from "./SupportHero";
-import FAQSection from "./FAQSection";
 import TrialCTA from "@/app/components/TrialCTA";
+import FAQSection from "@/app/(pages)/Home/FAQSection";
 
 export default function SupportPage() {
     return (
@@ -11,7 +11,7 @@ export default function SupportPage() {
 
             <main className="flex flex-col">
                 <SupportHero />
-                <FAQSection />
+                <FAQSection/>
                 <TrialCTA />
             </main>
 
