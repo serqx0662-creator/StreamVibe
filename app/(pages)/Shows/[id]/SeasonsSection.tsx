@@ -21,13 +21,24 @@ interface SeasonData {
 interface SeasonsSectionProps {
     showId: number;
     seasonsCount: number;
+    // Добавляем пропсы для связи с плеером
+    onEpisodeSelect: (season: number, episode: number) => void;
+    activeSeason: number;
+    activeEpisode: number;
 }
 
-export default function SeasonsSection({ showId, seasonsCount }: SeasonsSectionProps) {
+export default function SeasonsSection({
+                                           showId,
+                                           seasonsCount,
+                                           onEpisodeSelect,
+                                           activeSeason,
+                                           activeEpisode
+                                       }: SeasonsSectionProps) {
     const [episodes, setEpisodes] = useState<{ [key: number]: Episode[] }>({});
     const [loadingSeasons, setLoadingSeasons] = useState<{ [key: number]: boolean }>({});
 
     const fetchEpisodes = async (seasonNumber: number) => {
+        // Если данные уже есть, не качаем заново
         if (episodes[seasonNumber] || loadingSeasons[seasonNumber]) return;
 
         setLoadingSeasons(prev => ({ ...prev, [seasonNumber]: true }));
@@ -68,7 +79,9 @@ export default function SeasonsSection({ showId, seasonsCount }: SeasonsSectionP
                         >
                             <div className="flex items-center justify-between w-full pr-4">
                                 <div className="flex items-center gap-4">
-                                    <span className="text-lg md:text-xl font-semibold text-white group-hover:text-[#E50000] transition-colors">
+                                    <span className={`text-lg md:text-xl font-semibold transition-colors ${
+                                        activeSeason === num ? "text-[#E50000]" : "text-white group-hover:text-[#E50000]"
+                                    }`}>
                                         Season {num.toString().padStart(2, '0')}
                                     </span>
                                     {episodes[num] && (
@@ -86,9 +99,16 @@ export default function SeasonsSection({ showId, seasonsCount }: SeasonsSectionP
                                 {episodes[num]?.map((ep: Episode, idx: number) => (
                                     <div
                                         key={ep.id}
-                                        className="flex flex-col md:flex-row items-start md:items-center gap-6 group/item"
+                                        onClick={() => onEpisodeSelect(num, ep.episode_number)}
+                                        className={`flex flex-col md:flex-row items-start md:items-center gap-6 group/item cursor-pointer p-2 rounded-xl transition-all ${
+                                            activeSeason === num && activeEpisode === ep.episode_number
+                                                ? "bg-[#1A1A1A] ring-1 ring-[#E50000]/50"
+                                                : "hover:bg-[#141414]"
+                                        }`}
                                     >
-                                        <span className="text-2xl font-bold text-[#4C4C4C] hidden md:block min-w-[30px]">
+                                        <span className={`text-2xl font-bold hidden md:block min-w-[30px] ${
+                                            activeSeason === num && activeEpisode === ep.episode_number ? "text-[#E50000]" : "text-[#4C4C4C]"
+                                        }`}>
                                             {(idx + 1).toString().padStart(2, '0')}
                                         </span>
 
@@ -99,13 +119,19 @@ export default function SeasonsSection({ showId, seasonsCount }: SeasonsSectionP
                                                     alt={ep.name}
                                                     fill
                                                     sizes="(max-width: 768px) 100vw, 192px"
-                                                    className="object-cover opacity-70 group-hover/item:opacity-100 transition-opacity"
+                                                    className={`object-cover transition-opacity duration-300 ${
+                                                        activeSeason === num && activeEpisode === ep.episode_number ? "opacity-100" : "opacity-60 group-hover/item:opacity-100"
+                                                    }`}
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-[#4C4C4C] text-xs">No Image</div>
+                                                <div className="w-full h-full flex items-center justify-center text-[#4C4C4C] text-xs uppercase">No Image</div>
                                             )}
                                             <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center border border-white/20 group-hover/item:scale-110 transition-transform">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-all ${
+                                                    activeSeason === num && activeEpisode === ep.episode_number
+                                                        ? "bg-[#E50000] scale-110"
+                                                        : "bg-black/60 group-hover/item:scale-110"
+                                                }`}>
                                                     <Play size={16} fill="white" className="ml-0.5 text-white" />
                                                 </div>
                                             </div>
@@ -113,7 +139,9 @@ export default function SeasonsSection({ showId, seasonsCount }: SeasonsSectionP
 
                                         <div className="flex-grow space-y-2">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                                <h4 className="text-lg font-semibold text-white group-hover/item:text-[#E50000] transition-colors">
+                                                <h4 className={`text-lg font-semibold transition-colors ${
+                                                    activeSeason === num && activeEpisode === ep.episode_number ? "text-[#E50000]" : "text-white group-hover/item:text-[#E50000]"
+                                                }`}>
                                                     {ep.name}
                                                 </h4>
                                                 <div className="flex items-center gap-1 text-[#999999] border border-[#262626] px-2 py-1 rounded-md bg-[#141414] w-fit">

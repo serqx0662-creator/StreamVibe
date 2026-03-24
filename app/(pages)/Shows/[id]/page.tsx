@@ -48,11 +48,18 @@ export default function ShowDetailPage({ params }: { params: Promise<{ id: strin
     const resolvedParams = use(params);
     const id = resolvedParams.id;
 
-    const [show, setShow] = useState<TVShow | null>(null);
     const [cast, setCast] = useState<CastMember[]>([]);
     const [reviews, setReviews] = useState<SimilarShow[]>([]); // Убрали any[]
     const [videoKey, setVideoKey] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    // Добавь эти стейты внутри ShowDetailPage перед useEffect
+    const [isViewing, setIsViewing] = useState(false);
+    const [activeSeason, setActiveSeason] = useState(1);
+    const [activeEpisode, setActiveEpisode] = useState(1);
+
+    const [show, setShow] = useState<TVShow | null>(null);
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -95,6 +102,8 @@ export default function ShowDetailPage({ params }: { params: Promise<{ id: strin
         fetchData();
     }, [id]);
 
+
+
     if (loading) return <ShowSkeleton />;
     if (!show) return <div className="bg-[#0F0F0F] min-h-screen text-white flex items-center justify-center">Show not found</div>;
 
@@ -102,12 +111,31 @@ export default function ShowDetailPage({ params }: { params: Promise<{ id: strin
         <div className="bg-[#0F0F0F] min-h-screen text-white flex flex-col font-sans">
             <Header />
             <main className="flex-grow pb-20">
-                <ShowDetailHero show={show} videoKey={videoKey} />
+                <ShowDetailHero
+                    show={show}
+                    videoKey={videoKey}
+                    isViewing={isViewing}
+                    setIsViewing={setIsViewing}
+                    activeSeason={activeSeason}
+                    activeEpisode={activeEpisode}
+                />
 
                 <div className="container mx-auto px-4 md:px-10 lg:px-16 mt-16">
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
                         <div className="xl:col-span-2 flex flex-col gap-10">
-                            <SeasonsSection showId={show.id} seasonsCount={show.number_of_seasons} />
+                            <SeasonsSection
+                                showId={show.id}
+                                seasonsCount={show.number_of_seasons}
+                                // При выборе серии включаем режим просмотра и меняем эпизод
+                                onEpisodeSelect={(s, e) => {
+                                    setActiveSeason(s);
+                                    setActiveEpisode(e);
+                                    setIsViewing(true);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                activeSeason={activeSeason}
+                                activeEpisode={activeEpisode}
+                            />
                             <DescriptionSection overview={show.overview} />
                             <CastSection cast={cast} />
                             <ReviewsSection reviews={reviews} />
