@@ -1,9 +1,10 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import  PrismaClient  from '@prisma/client';
+// @ts-ignore
+import { PrismaClient } from '@prisma/client';
+// @ts-ignore
 import ws from 'ws';
 
-// Это нужно для работы WebSockets в среде Node.js (локально)
 if (process.env.NODE_ENV !== 'production') {
     neonConfig.webSocketConstructor = ws;
 }
@@ -12,7 +13,8 @@ const connectionString = `${process.env.DATABASE_URL}`;
 
 const prismaClientSingleton = () => {
     const pool = new Pool({ connectionString });
-    const adapter = new PrismaNeon(pool);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const adapter = new PrismaNeon(pool as any);
     return new PrismaClient({ adapter });
 };
 
