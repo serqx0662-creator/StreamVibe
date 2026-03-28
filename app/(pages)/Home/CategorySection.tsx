@@ -85,7 +85,7 @@ export default function CategoriesSection() {
     const TOTAL_GENRES = GENRES.length;
 
     const PaginationBullets = () => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
             {Array.from({ length: TOTAL_GENRES }).map((_, i) => {
                 const isActive = i === activeIndex;
                 return (
@@ -122,7 +122,7 @@ export default function CategoriesSection() {
                         variant="ghost"
                         size="icon"
                         onClick={() => swiperRef.current?.slidePrev()}
-                        className="w-11 h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
+                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
@@ -135,7 +135,7 @@ export default function CategoriesSection() {
                         variant="ghost"
                         size="icon"
                         onClick={() => swiperRef.current?.slideNext()}
-                        className="w-11 h-11 text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
+                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
                     >
                         <ArrowRight className="w-5 h-5" />
                     </Button>
@@ -183,10 +183,10 @@ export default function CategoriesSection() {
                                                 />
                                             </div>
                                         ))}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/90 to-transparent pointer-events-none" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/100 via-transparent to-transparent opacity-90" />
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-white font-medium truncate">{cat.name}</span>
+                                        <span className="text-white group-hover:text-[#E50000] font-medium truncate">{cat.name}</span>
                                         <ArrowRight className="text-[#4C4C4C] group-hover:text-white transition-colors" size={20} />
                                     </div>
                                 </CardContent>

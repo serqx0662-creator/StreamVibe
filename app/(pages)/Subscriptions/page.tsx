@@ -8,7 +8,7 @@ export default function SubscriptionsPage() {
         <div className="bg-[#0F0F0F] min-h-screen text-white">
             <Header />
 
-            <main className="flex flex-col">
+            <main className="flex flex-col py-18">
                 <PricingSection/>
                 <ComparisonTable />
             </main>
