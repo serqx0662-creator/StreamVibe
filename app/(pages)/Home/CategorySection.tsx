@@ -106,7 +106,7 @@ export default function CategoriesSection() {
     );
 
     return (
-        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-2 md:py-20">
+        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-2 lg:py-20">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 md:mb-12 gap-6">
                 <div className="max-w-[800px]">
                     <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">

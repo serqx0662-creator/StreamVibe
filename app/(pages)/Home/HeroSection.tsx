@@ -84,6 +84,8 @@ export default function HeroSection() {
                 </div>
             </div>
 
+            <div className="absolute bottom-0 w-full h-5 bg-gradient-to-t from-[#0F0F0F] to-transparent z-20" />
+
         </section>
     );
 }
