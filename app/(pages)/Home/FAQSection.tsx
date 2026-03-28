@@ -20,7 +20,7 @@ const faqs = [
 
 export default function FAQSection() {
     return (
-        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-20 ">
+        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-2 lg:py-20">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                 <div>
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Frequently Asked Questions</h2>

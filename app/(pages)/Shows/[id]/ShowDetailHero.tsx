@@ -66,8 +66,8 @@ export default function ShowDetailHero({
     };
 
     return (
-        <div className="container mx-auto px-0 md:px-10 lg:px-16 pt-16 md:pt-25">
-            <section className="relative w-full h-[65vh] sm:h-[75vh] md:h-[85vh] overflow-hidden md:rounded-[40px] border-b md:border border-[#262626] bg-black group/hero">
+        <div className="container mx-auto px-4 md:px-10 lg:px-16 pt-30">
+            <section className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden rounded-[40px] border-b md:border border-[#262626] bg-black group/hero">
 
                 {!isViewing ? (
                     <>

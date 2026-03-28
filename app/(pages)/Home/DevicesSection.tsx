@@ -11,7 +11,7 @@ const devices = [
 
 export default function DevicesSection() {
     return (
-        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-20">
+        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-2">
             <div className="mb-12">
                 <h2 className="text-3xl font-bold text-white mb-4">We Provide you streaming experience across various devices.</h2>
                 <p className="text-[#999999] max-w-[1000px]">With StreamVibe, you can enjoy your favorite movies and TV shows anytime, anywhere. Our platform is designed to be compatible with a wide range of devices, ensuring that you never miss a moment of entertainment.</p>

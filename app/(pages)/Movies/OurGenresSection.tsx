@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Navigation } from 'swiper/modules';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
+import type { Swiper as SwiperType } from 'swiper';
 import Image from 'next/image';
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { Button } from "@/app/components/ui/button";
 
 import 'swiper/css';
-import 'swiper/css/pagination';
 
 interface TMDBMovie {
     id: number;
@@ -33,16 +33,17 @@ const GENRES = [
     { id: 18, name: "Drama" },
     { id: 27, name: "Horror" },
     { id: 16, name: "Animation" },
-
 ];
 
 export default function OurGenresSection() {
     const [genresData, setGenresData] = useState<GenreWithImages[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [totalSlides, setTotalSlides] = useState(0);
+    const swiperRef = useRef<SwiperType | null>(null);
 
     const [prevEl, setPrevEl] = useState<HTMLElement | null>(null);
     const [nextEl, setNextEl] = useState<HTMLElement | null>(null);
-    const [paginationEl, setPaginationEl] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -50,7 +51,6 @@ export default function OurGenresSection() {
                 const results: GenreWithImages[] = await Promise.all(
                     GENRES.map(async (genre: Genre) => {
                         const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genre.id}&language=en-EN&sort_by=popularity.desc&vote_count.gte=100`;
-
                         const res = await fetch(url, {
                             method: 'GET',
                             headers: {
@@ -58,20 +58,16 @@ export default function OurGenresSection() {
                                 Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`
                             }
                         });
-
                         const data = await res.json();
-
                         const movies: TMDBMovie[] = data.results || [];
-
                         const images = movies
-                            .filter((m) => m.poster_path !== null) // TS теперь понимает, что poster_path тут будет
+                            .filter((m) => m.poster_path !== null)
                             .slice(0, 4)
                             .map((m) => `https://image.tmdb.org/t/p/w500${m.poster_path}`);
 
                         return { ...genre, images };
                     })
                 );
-
                 setGenresData(results);
             } catch (error) {
                 console.error("Fetch error:", error);
@@ -82,30 +78,69 @@ export default function OurGenresSection() {
         fetchAll();
     }, []);
 
+    const handleSwiper = useCallback((swiper: SwiperType) => {
+        swiperRef.current = swiper;
+        setTotalSlides(swiper.slides.length);
+        setActiveIndex(swiper.realIndex);
+    }, []);
+
+    const handleSlideChange = useCallback((swiper: SwiperType) => {
+        setActiveIndex(swiper.realIndex);
+    }, []);
+
+    const BULLET_COUNT = 5;
+
+    const PaginationBullets = () => (
+        <div className="flex items-center gap-1">
+            {Array.from({ length: BULLET_COUNT }).map((_, i) => {
+                const isActive = i === (activeIndex % BULLET_COUNT);
+                return (
+                    <button
+                        key={i}
+                        onClick={() => swiperRef.current?.slideToLoop(i * Math.ceil(totalSlides / BULLET_COUNT))}
+                        style={{
+                            width: isActive ? '20px' : '12px',
+                            height: '4px',
+                            borderRadius: '2px',
+                            backgroundColor: isActive ? '#E50000' : '#333333',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                        }}
+                    />
+                );
+            })}
+        </div>
+    );
+
     return (
-        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-10">
+        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-7 lg:py-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 md:mb-12 gap-6">
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
                     Our Genres
                 </h2>
 
-                <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] p-2 rounded-xl">
+                {/* Навигация — теперь скрыта на мобилках полностью через hidden lg:flex */}
+                <div className="hidden lg:flex items-center gap-2 bg-[#0A0A0A] border border-[#1A1A1A] p-2 rounded-xl">
                     <Button
                         ref={(node) => setPrevEl(node)}
                         variant="ghost"
                         size="icon"
-                        className="w-9 h-9 md:w-11 md:h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all active:scale-95"
+                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
 
-                    <div ref={(node) => setPaginationEl(node)} className="genres-pagination flex items-center gap-1 px-2 min-w-[60px] justify-center" />
+                    <div className="items-center gap-1 px-2 min-w-[60px] justify-center flex">
+                        <PaginationBullets />
+                    </div>
 
                     <Button
                         ref={(node) => setNextEl(node)}
                         variant="ghost"
                         size="icon"
-                        className="w-9 h-9 md:w-11 md:h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all active:scale-95"
+                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
                     >
                         <ArrowRight className="w-5 h-5" />
                     </Button>
@@ -121,22 +156,17 @@ export default function OurGenresSection() {
             ) : (
                 <Swiper
                     key={prevEl ? 'ready' : 'loading'}
-                    modules={[Navigation, Pagination]}
+                    modules={[Navigation]}
                     spaceBetween={16}
                     slidesPerView={1.2}
                     loop={true}
                     navigation={{ prevEl, nextEl }}
-                    pagination={{
-                        el: paginationEl,
-                        clickable: true,
-                        renderBullet: (index, className) => {
-                            return index < 5 ? `<span class="${className} genres-bullet"></span>` : "";
-                        },
-                    }}
+                    onSwiper={handleSwiper}
+                    onSlideChange={handleSlideChange}
                     breakpoints={{
-                        480: { slidesPerView: 2.2, slidesPerGroup: 1 },
-                        768: { slidesPerView: 3.2, slidesPerGroup: 1 },
-                        1024: { slidesPerView: 5 , slidesPerGroup: 1, spaceBetween: 20 }
+                        480: { slidesPerView: 2.2 },
+                        768: { slidesPerView: 3.2 },
+                        1024: { slidesPerView: 5, spaceBetween: 20 }
                     }}
                     className="genres-swiper"
                 >
@@ -168,22 +198,9 @@ export default function OurGenresSection() {
                 </Swiper>
             )}
 
-            <style jsx global>{`
-                .genres-bullet {
-                    width: 12px !important;
-                    height: 4px !important;
-                    background-color: #333333 !important;
-                    border-radius: 2px !important;
-                    opacity: 1 !important;
-                    display: inline-block;
-                    transition: all 0.3s ease;
-                    cursor: pointer;
-                }
-                .swiper-pagination-bullet-active.genres-bullet {
-                    width: 20px !important;
-                    background-color: #E50000 !important;
-                }
-            `}</style>
+            <div className="flex lg:hidden justify-center mt-6">
+                <PaginationBullets />
+            </div>
         </section>
     );
 }

@@ -28,7 +28,7 @@ export default function ReviewsSection({ reviews }: ReviewsSectionProps) {
                 <h3 className="text-[#999999] font-medium text-lg">Reviews</h3>
                 <Button
                     variant="outline"
-                    className="bg-[#141414] border-[#262626] text-white gap-2 hover:bg-[#262626] text-xs h-12 px-5 rounded-lg"
+                    className="bg-[#141414] border-[#262626] text-white hover:text-white gap-2 hover:bg-[#262626] text-xs h-12 px-5 rounded-lg"
                 >
                     <Plus size={18}/> Add Your Review
                 </Button>

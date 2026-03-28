@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react'; // Добавил useRef и useCallback
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Navigation } from 'swiper/modules';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
+import type { Swiper as SwiperType } from 'swiper'; // Добавил тип
 import Image from 'next/image';
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { Button } from "@/app/components/ui/button";
 
 import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
 
 interface TMDBRawMovie {
     id: number;
@@ -41,66 +40,91 @@ const GENRES = [
 export default function PopularTop10Section() {
     const [genreData, setGenreData] = useState<GenreCard[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const swiperRef = useRef<SwiperType | null>(null);
 
     const [prevEl, setPrevEl] = useState<HTMLElement | null>(null);
     const [nextEl, setNextEl] = useState<HTMLElement | null>(null);
-    const [paginationEl, setPaginationEl] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
         const fetchMoviesByGenres = async () => {
             try {
                 const results: GenreCard[] = await Promise.all(
                     GENRES.map(async (genre) => {
-                        const randomPage = Math.floor(Math.random() * 8) + 1;
                         const res = await fetch(
-                            `https://api.themoviedb.org/3/discover/movie?with_genres=${genre.id}&sort_by=popularity.desc&language=en-EN&page=${randomPage}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
-                                    accept: 'application/json',
-                                },
-                            }
+                            `https://api.themoviedb.org/3/discover/movie?with_genres=${genre.id}&sort_by=popularity.desc&language=en-EN`,
+                            { headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}` } }
                         );
                         const data = await res.json();
-                        const moviesWithPosters: Movie[] = (data.results as TMDBRawMovie[])
-                            .filter((m): m is TMDBRawMovie & { poster_path: string } => m.poster_path !== null);                        const shuffled = moviesWithPosters.sort(() => 0.5 - Math.random());
-                        return { ...genre, posters: shuffled.slice(0, 4) };
+                        return { ...genre, posters: data.results?.slice(0, 4) || [] };
                     })
                 );
                 setGenreData(results);
-            } catch (error) {
-                console.error("Error fetching genres:", error);
-            } finally {
-                setLoading(false);
-            }
+            } catch (error) { console.error(error); } finally { setLoading(false); }
         };
         fetchMoviesByGenres();
     }, []);
 
+    const handleSwiper = useCallback((swiper: SwiperType) => {
+        swiperRef.current = swiper;
+        setActiveIndex(swiper.realIndex);
+    }, []);
+
+    const handleSlideChange = useCallback((swiper: SwiperType) => {
+        setActiveIndex(swiper.realIndex);
+    }, []);
+
+    const BULLET_COUNT = GENRES.length;
+
+    const PaginationBullets = () => (
+        <div className="flex items-center gap-1">
+            {Array.from({ length: BULLET_COUNT }).map((_, i) => {
+                const isActive = i === (activeIndex % BULLET_COUNT);
+                return (
+                    <button
+                        key={i}
+                        onClick={() => swiperRef.current?.slideToLoop(i)}
+                        className="transition-all duration-300"
+                        style={{
+                            width: isActive ? '20px' : '12px',
+                            height: '4px',
+                            borderRadius: '2px',
+                            backgroundColor: isActive ? '#E50000' : '#333333',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                        }}
+                    />
+                );
+            })}
+        </div>
+    );
+
     return (
-        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-10">
+        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-3 sm:py-7 lg:py-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 md:mb-12 gap-6">
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3">
                     Popular Top 10 In Genres
                 </h2>
 
-                <div className="flex items-center gap-3 bg-[#0A0A0A] border border-[#1A1A1A] p-2 rounded-xl">
+                {/* Навигация — скрыта на мобилках до lg */}
+                <div className="hidden lg:flex items-center gap-3 bg-[#0A0A0A] border border-[#1A1A1A] p-2 rounded-xl">
                     <Button
                         ref={(node) => setPrevEl(node)}
-                        variant="ghost"
-                        size="icon"
-                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
+                        variant="ghost" size="icon"
+                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] rounded-lg hover:bg-[#1F1F1F]"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
 
-                    <div ref={(node) => setPaginationEl(node)} className="top10-pagination flex items-center gap-1 px-2 min-w-[60px]" />
+                    <div className="flex items-center gap-1 px-2 min-w-[60px] justify-center">
+                        <PaginationBullets />
+                    </div>
 
                     <Button
                         ref={(node) => setNextEl(node)}
-                        variant="ghost"
-                        size="icon"
-                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] hover:bg-[#1F1F1F] rounded-lg transition-all"
+                        variant="ghost" size="icon"
+                        className="w-11 h-11 text-white hover:text-white bg-[#141414] border border-[#262626] rounded-lg hover:bg-[#1F1F1F]"
                     >
                         <ArrowRight className="w-5 h-5" />
                     </Button>
@@ -116,54 +140,41 @@ export default function PopularTop10Section() {
             ) : (
                 <Swiper
                     key={prevEl ? 'ready' : 'loading'}
-                    modules={[Navigation, Pagination]}
+                    modules={[Navigation]}
                     spaceBetween={20}
                     slidesPerView={1.2}
                     loop={true}
                     navigation={{ prevEl, nextEl }}
-                    pagination={{
-                        el: paginationEl,
-                        clickable: true,
-                        renderBullet: (index, className) => {
-                            return index < 5 ? `<span class="${className} top10-bullet"></span>` : "";
-                        },
-                    }}
+                    onSwiper={handleSwiper}
+                    onSlideChange={handleSlideChange}
                     breakpoints={{
                         640: { slidesPerView: 2.2 },
-                        1024: { slidesPerView: 3.2, slidesPerGroup: 1 },
-                        1280: { slidesPerView: 4, slidesPerGroup: 1 }
+                        1024: { slidesPerView: 3.2 },
+                        1280: { slidesPerView: 4 }
                     }}
-                    className="popular-swiper"
                 >
                     {genreData.map((genre) => (
                         <SwiperSlide key={genre.id}>
-                            <Card className="bg-[#1A1A1A] border-[#262626] p-5 rounded-[20px] hover:bg-[#1F1F1F] transition-all group cursor-pointer h-full border-none">
+                            <Card className="bg-[#1A1A1A] border-none p-5 rounded-[20px] hover:bg-[#1F1F1F] group h-full cursor-pointer transition-all">
                                 <CardContent className="p-0 flex flex-col h-full">
                                     <div className="grid grid-cols-2 gap-2 mb-5">
-                                        {genre.posters.map((movie) => (
-                                            <div key={movie.id} className="relative aspect-square rounded-xl overflow-hidden bg-[#262626] shadow-lg">
+                                        {genre.posters.map((movie: any, i: number) => (
+                                            <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-[#262626]">
                                                 {movie.poster_path && (
-                                                    <>
-                                                        <Image
-                                                            src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                                                            alt={movie.title}
-                                                            fill
-                                                            className="object-cover group-hover:scale-110 transition-transform duration-700"
-                                                        />
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-90" />
-                                                    </>
+                                                    <Image
+                                                        src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                                                        alt="" fill className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                                    />
                                                 )}
                                             </div>
                                         ))}
                                     </div>
                                     <div className="mt-auto flex items-center justify-between">
                                         <div className="space-y-1">
-                                            <span className="inline-block bg-[#E50000] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm">
-                                                Top 10 In
-                                            </span>
-                                            <h3 className="text-white truncate group-hover:text-[#E50000] text-lg font-semibold">{genre.name}</h3>
+                                            <span className="inline-block bg-[#E50000] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm">Top 10 In</span>
+                                            <h3 className="text-white group-hover:text-[#E50000] text-lg font-semibold">{genre.name}</h3>
                                         </div>
-                                        <ArrowRight className="text-[#4C4C4C] w-6 h-6 group-hover:text-white transition-all" />
+                                        <ArrowRight className="text-[#4C4C4C] group-hover:text-white transition-all w-6 h-6" />
                                     </div>
                                 </CardContent>
                             </Card>
@@ -172,22 +183,10 @@ export default function PopularTop10Section() {
                 </Swiper>
             )}
 
-            <style jsx global>{`
-                .top10-bullet {
-                    width: 12px !important;
-                    height: 4px !important;
-                    background-color: #333333 !important;
-                    border-radius: 2px !important;
-                    opacity: 1 !important;
-                    cursor: pointer;
-                    display: inline-block;
-                    transition: all 0.3s ease;
-                }
-                .swiper-pagination-bullet-active.top10-bullet {
-                    width: 24px !important;
-                    background-color: #E50000 !important;
-                }
-            `}</style>
+            {/* Пагинация внизу — только на мобилке (скрыта на lg) */}
+            <div className="flex lg:hidden justify-center mt-8">
+                <PaginationBullets />
+            </div>
         </section>
     );
 }

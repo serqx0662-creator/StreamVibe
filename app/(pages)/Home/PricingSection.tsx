@@ -28,7 +28,7 @@ export default function PricingSection() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
     return (
-        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-20">
+        <section className="bg-[#0F0F0F] px-4 md:px-10 lg:px-20 py-2 lg:py-20">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 gap-6">
                 <div className="max-w-[800px]">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
